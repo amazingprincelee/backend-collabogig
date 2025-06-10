@@ -1,7 +1,7 @@
 import axios from "axios";
-import Configuration from "../models/payment.js";  // Import the Configuration model
+import dotenv from 'dotenv';
+dotenv.config();
 
-// Create an Axios instance with the base URL for Flutterwave API
 const flutterwave = axios.create({
   baseURL: 'https://api.flutterwave.com',
   headers: {
@@ -9,68 +9,65 @@ const flutterwave = axios.create({
   },
 });
 
-// Function to fetch the Flutterwave secret key directly from the database
-const getFlutterwaveSecretKey = async () => {
-  try {
-    // Fetch the configuration from the database
-    const config = await Configuration.findOne();
-
-    if (!config || !config.flutterwaveKeys || !config.flutterwaveKeys.secretKey) {
-      throw new Error("Flutterwave secret key not found in database");
-    }
-
-    return config.flutterwaveKeys.secretKey;
-  } catch (error) {
-    console.error("Error fetching Flutterwave secret key from database:", error);
-    throw error; // Rethrow the error for handling by the caller
+const getFlutterwaveSecretKey = () => {
+  const secretKey = process.env.FLUTTER_SECRET;
+  if (!secretKey) {
+    throw new Error("Flutterwave secret key not found in .env file. Please set FLUTTER_SECRET.");
   }
+  return secretKey;
 };
 
-// Function to initialize the payment
-export const initializePayment = async (amount, currency) => {
+export const initializePayment = async (amount, currency, customer, txRef, meta) => {
   try {
-    // Fetch the Flutterwave secret key from the database
-    const secretKey = await getFlutterwaveSecretKey();
-
-    // Set up payment data
-    const data = {
-      tx_ref: `phylee_${Date.now()}`,  // Unique transaction reference
+    console.log('Fetched secret key successfully:', process.env.FLUTTER_SECRET);
+    const requestData = {
+      tx_ref: txRef,
       amount,
       currency,
-      redirect_url: "https://your-redirect-url.com",  // Replace with your redirect URL
-      payment_options: "card",
+      redirect_url: 'http://localhost:5000/api/payment/callback', // Corrected URL
+      payment_options: 'card',
+      customer,
+      meta,
+      customizations: {
+        title: 'Course Enrollment',
+        description: 'Payment for CodeFast course',
+      },
     };
-
-    // Make the request to Flutterwave API
-    const response = await flutterwave.post(
-      "/v3/payments",
-      data,
-      { headers: { Authorization: `Bearer ${secretKey}` } }
+    console.log('Flutterwave payment request data:', requestData);
+    const response = await axios.post(
+      'https://api.flutterwave.com/v3/payments',
+      requestData,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.FLUTTER_SECRET}`,
+        },
+      }
     );
-
+    console.log('Flutterwave response:', response.data);
     return response.data;
   } catch (error) {
-    console.error("Error during payment initialization:", error);
-    throw error;  // Rethrow the error for handling by the caller
+    console.error('Flutterwave error:', error.response?.data || error.message);
+    throw new Error(`Flutterwave payment initialization failed: ${error.response?.data?.message || error.message}`);
   }
 };
 
-// Function to verify the Flutterwave payment
 export const verifyFlutterwavePayment = async (transactionId) => {
   try {
-    // Fetch the Flutterwave secret key from the database
-    const secretKey = await getFlutterwaveSecretKey();
+    const secretKey = getFlutterwaveSecretKey();
 
-    // Make the request to Flutterwave API for verification
     const response = await flutterwave.get(
       `/v3/transactions/${transactionId}/verify`,
       { headers: { Authorization: `Bearer ${secretKey}` } }
     );
 
-    // Check the payment status
-    return response.data.data.status === "successful";
+    console.log('Flutterwave verification response:', response.data);
+    return response.data.data.status === 'successful';
   } catch (error) {
-    console.error("Error verifying payment:", error);
-    throw error;  // Rethrow the error for handling by the caller
+    console.error('Error verifying payment:', {
+      message: error.message,
+      stack: error.stack,
+      response: error.response?.data,
+    });
+    throw error;
   }
 };

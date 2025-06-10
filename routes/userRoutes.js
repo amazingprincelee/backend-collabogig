@@ -1,13 +1,13 @@
 import express from 'express';
-import { getAllUsers, getUserById, updateUser, updateProfile } from '../controllers/userController.js';
-import authenticateToken from '../middlewares/authenticateToken.js';
-import uploadMiddleware from '../config/multerConfig.js';
+import { getAllUsers, getUserById, updateUser, updateProfile, getUser, changePassword } from '../controllers/userController.js';
+import { authMiddleware, isAdmin } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
-
-router.get('/', authenticateToken, getAllUsers); // Admin access
-router.get('/:id', authenticateToken, getUserById);
-router.put('/:id', authenticateToken, uploadMiddleware.single('profilePhoto'), updateUser); // Admin or self
-router.put('/profile', authenticateToken, uploadMiddleware.single('profilePhoto'), updateProfile); // Self-update
+router.get('/user', authMiddleware, getUser);
+router.get('/', authMiddleware, isAdmin, getAllUsers); // Admin access
+router.get('/:id', authMiddleware, getUserById);
+router.put('/:id', authMiddleware, isAdmin,  updateUser); // Admin or self
+router.put('/profile', authMiddleware,  updateProfile); // Self-update
+router.put('/change-password', authMiddleware, changePassword);
 
 export default router;

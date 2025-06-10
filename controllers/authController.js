@@ -1,84 +1,100 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/users.js';
+import Referral from '../models/referral.js';
+import { nanoid } from 'nanoid';
+import {config} from 'dotenv';
+import { sendNotificationEmail, sendWelcomeWithTempPassword } from '../utils/nodemailer.js'
+config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'yoursecretkey';
+const JWT_SECRET = process.env.JWT_SECRET;
 
-export const register = async (req, res) => {
-  try {
-    const { firstName, surName, phone, email, role, password } = req.body;
+// Register User
 
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: 'Email already in use' });
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = new User({
-      firstName,
-      surName,
-      phone,
-      email,
-      password: hashedPassword,
-      role: role, 
-    });
-
-    await user.save();
-
-    res.status(201).json({ message: 'User registered successfully', userId: user._id });
-  } catch (error) {
-    res.status(500).json({ message: 'Registration failed', error: error.message });
-  }
-};
-
+// Login User
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'Invalid credentials' });
-
-    // Compare password
+    if (!user) throw new Error('Invalid credentials');
+    
+    // Compare hashed password
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
-
-    // Create token
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, {
-      expiresIn: '7d',
-    });
-
-    res.json({ token, user: { id: user._id, email: user.email, role: user.role } });
+    if (!isMatch) throw new Error('Invalid credentials');
+    
+    const token = jwt.sign({ 
+      id: user._id,
+      email: user.email,
+      role: user.role  // Make sure this is included
+    }, JWT_SECRET, { expiresIn: '1h' });
+    res.json({ token });
   } catch (error) {
-    res.status(500).json({ message: 'Login failed', error: error.message });
+    res.status(401).json({ error: error.message });
   }
 };
 
 
-export const forgotPassword = async (req, res) => {
-    try {
-      const { email } = req.body;
-  
-      const user = await User.findOne({ email });
-      if (!user) return res.status(404).json({ message: 'User not found' });
-  
-      // Generate a random temporary password
-      const tempPassword = Math.random().toString(36).slice(-8); // e.g. "a1b2c3d4"
-  
-      // Hash it
-      const hashedPassword = await bcrypt.hash(tempPassword, 10);
-  
-      // Update user password
-      user.password = hashedPassword;
-      await user.save();
-  
-      // Send email
-      await sendTemporaryPassword(email, tempPassword);
-  
-      res.status(200).json({ message: 'Temporary password sent to your email.' });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Failed to process password reset.' });
+export const register = async (req, res) => {
+  try {
+    const { name, email, phone, password, role, referralCode } = req.body;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ message: 'User already registered' });
     }
-  };
+
+    // Hash the provided password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create new user with the hashed password
+    const newUser = new User({
+      name,
+      email,
+      phone,
+      password: hashedPassword,
+      role: role || 'client',
+      referralCode: nanoid(10), // Assign unique referral code
+    });
+
+    await newUser.save();
+
+    // Handle referral if referralCode is provided
+    if (referralCode) {
+      const referral = await Referral.findOne({ referralCode, referredEmail: email });
+      if (referral) {
+        const referrer = await User.findById(referral.referrerId);
+        if (referrer) {
+          referral.referredUserId = newUser._id;
+          referral.status = 'Free Class';
+          await referral.save();
+
+          if (!referrer.downlines.includes(newUser._id)) {
+            referrer.downlines.push(newUser._id);
+            referrer.referrals.push(referral._id);
+            await referrer.save();
+          }
+
+          await sendNotificationEmail(
+            referrer.email,
+            `${newUser.name} registered via your referral link!`
+          );
+        }
+      }
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: newUser._id, email: newUser.email, role: newUser.role },
+      JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.status(201).json({ message: 'Registration successful', token, user: { id: newUser._id, email, role } });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ message: 'Failed to register user', error: error.message });
+  }
+};

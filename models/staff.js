@@ -19,7 +19,8 @@ const departmentCodes = {
 
 // Flattened position list for enum
 const positionEnum = [
-  'Software Engineer',
+  'Software Developer',
+  'Lead Software Developer',
   'Frontend Developer',
   'Backend Developer',
   'Social Media Manager',

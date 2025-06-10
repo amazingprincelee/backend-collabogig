@@ -15,6 +15,17 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+// Get User Data
+export const getUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).populate('paymentDetails referrals');
+    if (!user) throw new Error('User not found');
+    res.json(user);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+};
+
 export const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
@@ -92,5 +103,32 @@ export const updateProfile = async (req, res) => {
     res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
   } catch (err) {
     res.status(500).json({ message: 'Failed to update profile', error: err.message });
+  }
+};
+
+
+// Change Password
+export const changePassword = async (req, res) => {
+  try {
+    const userId = req.user.id; // From JWT
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) return res.status(401).json({ message: 'Current password is incorrect' });
+
+    // Hash new password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    user.password = hashedNewPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Password changed successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to change password', error: err.message });
   }
 };

@@ -1,12 +1,11 @@
 import express from 'express';
-import { createPayment, verifyPayment, getUserPayments } from '../controllers/paymentController.js';
-import authenticateToken from '../middlewares/authenticateToken.js';
-import { validatePayment } from '../middlewares/validation.js';
+import { createPayment, verifyPayment, paymentCallback } from '../controllers/paymentController.js';
+import { authMiddleware } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/', authenticateToken, validatePayment, createPayment);
-router.post('/verify', authenticateToken, verifyPayment);
-router.get('/my', authenticateToken, getUserPayments);
+router.post('/', createPayment); // No authMiddleware for new users
+router.post('/verify', authMiddleware, verifyPayment);
+router.get('/callback', paymentCallback); // New callback route
 
 export default router;

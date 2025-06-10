@@ -10,23 +10,17 @@ import {
   createServiceRequest,
   processServiceRequest,
 } from '../controllers/serviceController.js';
-import {
-  validateTask,
-  validateMilestone,
-  validateTime,
-  validateServiceRequest,
-} from '../middlewares/validation.js';
-import authenticateToken from '../middlewares/authenticateToken.js';
+import { authMiddleware } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/requests', validateServiceRequest, createServiceRequest); // Public or authenticated
-router.post('/requests/process', authenticateToken, processServiceRequest); // Admin only
-router.post('/:assignmentId/tasks', authenticateToken, validateTask, addTask);
-router.post('/:assignmentId/milestones', authenticateToken, validateMilestone, addMilestone);
-router.post('/:assignmentId/tasks/:taskId/files', authenticateToken, uploadMiddleware.single('file'), uploadFile);
-router.post('/:assignmentId/tasks/:taskId/time', authenticateToken, validateTime, logTime);
-router.post('/:assignmentId/tasks/:taskId/comments', authenticateToken, addComment);
-router.get('/dashboard', authenticateToken, getDashboardData);
+router.post('/requests', createServiceRequest); // Public or authenticated
+router.post('/requests/process', authMiddleware, processServiceRequest); // Admin only
+router.post('/:assignmentId/tasks', authMiddleware,  addTask);
+router.post('/:assignmentId/milestones', authMiddleware,  addMilestone);
+router.post('/:assignmentId/tasks/:taskId/files', authMiddleware, uploadMiddleware.single('file'), uploadFile);
+router.post('/:assignmentId/tasks/:taskId/time', authMiddleware,  logTime);
+router.post('/:assignmentId/tasks/:taskId/comments', authMiddleware, addComment);
+router.get('/dashboard', authMiddleware, getDashboardData);
 
 export default router;

@@ -1,6 +1,6 @@
 import { ServiceAssignment, ServiceRequest, Task, MileStone, TimeLog } from '../models/services.js';
 import Project from '../models/projects.js';
-import Course from '../models/course.js';
+import Course from '../models/courseTemplate.js';
 import multer from 'multer';
 import path from 'path';
 

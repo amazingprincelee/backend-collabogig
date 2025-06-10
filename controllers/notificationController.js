@@ -1,5 +1,5 @@
 import Notification from '../models/Notification.js';
-import { sendVerificationEmail } from '../config/nodemailer.js'; 
+import { sendVerificationEmail } from '../utils/nodemailer.js'; 
 
 export const createNotification = async (req, res) => {
   try {

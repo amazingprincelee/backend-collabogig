@@ -13,6 +13,7 @@ import staffRoute from './routes/staffRoute.js';
 import reportRoute from './routes/reportRoute.js';
 import paymentRoute from './routes/paymentRoute.js';
 import projectRoute from './routes/projectRoute.js';
+import partnersRoute from './routes/partnerRoute.js';
 import updateStatuses from './utils/updateStatuses.js';
 const app = express();
 dotenv.config();
@@ -28,16 +29,17 @@ app.use(express.urlencoded({extended: false}));
 connect()
 
 // Routes
-app.use('/api/services', serviceRoutes);
+app.use('/api/services',  serviceRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/users',  userRoutes);
 app.use('/api/contact-form', contactRoute);
-app.use('/api/course', courseRoute);
-app.use('/api/notification', notificationRoute);
-app.use('/api/staff', staffRoute);
-app.use('/api/report', reportRoute);
-app.use('/api/payment', paymentRoute);
-app.use('/api/project', projectRoute);
+app.use('/api/course',  courseRoute);
+app.use('/api/notification',  notificationRoute);
+app.use('/api/staff',  staffRoute);
+app.use('/api/report',  reportRoute);
+app.use('/api/payment',  paymentRoute);
+app.use('/api/project',  projectRoute);
+app.use('/api/partners',  partnersRoute);
 
 
 // Schedule updateStatuses to run every hour
