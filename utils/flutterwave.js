@@ -24,7 +24,7 @@ export const initializePayment = async (amount, currency, customer, txRef, meta)
       tx_ref: txRef,
       amount,
       currency,
-      redirect_url: 'http://localhost:5000/api/payment/callback', // Corrected URL
+      redirect_url: 'https://backend-collabogig.onrender.com/api/payment/callback', // Corrected URL
       payment_options: 'card',
       customer,
       meta,

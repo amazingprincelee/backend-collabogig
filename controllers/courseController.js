@@ -3,11 +3,12 @@ import ClassGroup from '../models/classGroup.js';
 import User from '../models/users.js';
 import { sendWelcomeWithTempPassword } from '../utils/nodemailer.js';
 import { createPayment } from './paymentController.js';
+import { nanoid } from 'nanoid';
 
 
 export const courseEnrollment = async (req, res) => {
   try {
-    const { name, email, phone, options, classGroupId, provider = 'flutterwave' } = req.body;
+    const { name, email, phone, options, classGroupId, provider = 'paystack' } = req.body;
 
     if (!name || !email || !phone || !options || !classGroupId) {
       return res.status(400).json({ message: 'Missing required fields' });
@@ -57,6 +58,7 @@ export const courseEnrollment = async (req, res) => {
           return res.status(200).json({
             message: 'Please complete payment to enroll',
             paymentLink: paymentResponse.paymentLink,
+            payment: paymentResponse.payment, // Include transactionId
           });
         } catch (paymentError) {
           console.error('Payment error:', paymentError.message);
@@ -74,6 +76,7 @@ export const courseEnrollment = async (req, res) => {
 
     if (options === 'free_course') {
       const tempPassword = Math.random().toString(36).slice(-8);
+
       user = new User({
         name,
         email,
@@ -84,6 +87,7 @@ export const courseEnrollment = async (req, res) => {
         courseStatus: 'free',
         paymentStatus: 'success',
         courses: [classGroup._id],
+        referralCode: nanoid(10),
       });
 
       await user.save();
@@ -114,6 +118,7 @@ export const courseEnrollment = async (req, res) => {
         return res.status(200).json({
           message: 'Please complete payment to finalize enrollment',
           paymentLink: paymentResponse.paymentLink,
+          payment: paymentResponse.payment, // Include transactionId
         });
       } catch (paymentError) {
         console.error('Payment error:', paymentError.message);
