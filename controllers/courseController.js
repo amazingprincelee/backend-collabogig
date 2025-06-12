@@ -1,14 +1,21 @@
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import CourseTemplate from '../models/courseTemplate.js';
 import ClassGroup from '../models/classGroup.js';
 import User from '../models/users.js';
 import { sendWelcomeWithTempPassword } from '../utils/nodemailer.js';
-import { createPayment } from './paymentController.js';
 import { nanoid } from 'nanoid';
+import { config } from "dotenv";
+config();
+
+const JWT_SECRET = process.env.JWT_SECRET
 
 
 export const courseEnrollment = async (req, res) => {
   try {
-    const { name, email, phone, options, classGroupId, provider = 'paystack' } = req.body;
+    const { name, email, phone, options, classGroupId } = req.body;
+
+    console.log(options);
 
     if (!name || !email || !phone || !options || !classGroupId) {
       return res.status(400).json({ message: 'Missing required fields' });
@@ -37,100 +44,50 @@ export const courseEnrollment = async (req, res) => {
         return res.status(400).json({ message: 'User already enrolled in this class' });
       }
 
-      if (options === 'paid_course') {
-        try {
-          const paymentResponse = await createPayment(
-            {
-              body: {
-                userName: user.name,
-                email: user.email,
-                phone: user.phone,
-                amount: classGroup.courseTemplate.fee,
-                serviceType: 'Course',
-                serviceId: classGroup._id,
-                provider,
-              },
-              user: { id: user._id },
-            },
-            { status: (code) => ({ json: (data) => ({ status: code, ...data }) }) }
-          );
-
-          return res.status(200).json({
-            message: 'Please complete payment to enroll',
-            paymentLink: paymentResponse.paymentLink,
-            payment: paymentResponse.payment, // Include transactionId
-          });
-        } catch (paymentError) {
-          console.error('Payment error:', paymentError.message);
-          return res.status(400).json({ message: 'Payment initialization failed', error: paymentError.message });
-        }
-      }
-
-      user.courses.push(classGroup._id);
-      classGroup.enrolledUsers.push(user._id);
-      await user.save();
-      await classGroup.save();
-
-      return res.status(200).json({ message: 'Enrollment successful for existing user' });
+      // Generate JWT token for existing user
+      const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+      console.log('Existing user authenticated, options:', options); // Debug log
+      return res.status(200).json({ message: 'User authenticated', token, user: { id: user._id, email, role: user.role }, options });
     }
+
+    // New user registration
+    const tempPassword = Math.random().toString(36).slice(-8);
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    user = new User({
+      name,
+      email,
+      phone,
+      options,
+      password: hashedPassword,
+      role: 'student',
+      courseStatus: options === 'free_course' ? 'free' : 'not paid',
+      paymentStatus: options === 'free_course' ? 'success' : 'pending',
+      courses: options === 'free_course' ? [classGroup._id] : [],
+      referralCode: nanoid(10),
+    });
+
+    await user.save();
+    console.log('New user created, options:', options); // Debug log
+
+    // Send welcome email with temp password for both free and paid courses
+    await sendWelcomeWithTempPassword(email, name, classGroup.className, tempPassword);
 
     if (options === 'free_course') {
-      const tempPassword = Math.random().toString(36).slice(-8);
-
-      user = new User({
-        name,
-        email,
-        phone,
-        options,
-        password: tempPassword,
-        role: 'student',
-        courseStatus: 'free',
-        paymentStatus: 'success',
-        courses: [classGroup._id],
-        referralCode: nanoid(10),
-      });
-
-      await user.save();
       classGroup.enrolledUsers.push(user._id);
       await classGroup.save();
-
-      await sendWelcomeWithTempPassword(email, name, classGroup.className, tempPassword);
-
-      return res.status(201).json({ message: 'Enrollment successful. Check your email' });
-    } else if (options === 'paid_course') {
-      try {
-        const paymentResponse = await createPayment(
-          {
-            body: {
-              userName: name,
-              email,
-              phone,
-              amount: classGroup.courseTemplate.fee,
-              serviceType: 'Course',
-              serviceId: classGroup._id,
-              provider,
-            },
-            user: null,
-          },
-          { status: (code) => ({ json: (data) => ({ status: code, ...data }) }) }
-        );
-
-        return res.status(200).json({
-          message: 'Please complete payment to finalize enrollment',
-          paymentLink: paymentResponse.paymentLink,
-          payment: paymentResponse.payment, // Include transactionId
-        });
-      } catch (paymentError) {
-        console.error('Payment error:', paymentError.message);
-        return res.status(400).json({ message: 'Payment initialization failed', error: paymentError.message });
-      }
     }
+
+    // Generate JWT token for new user
+    const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+
+    // Redirect to dashboard (frontend will handle payment for paid_course)
+    res.status(201).json({ message: 'Registration and authentication successful', token, user: { id: user._id, email, role: user.role }, options });
   } catch (error) {
     console.error('Enrollment error:', error.message);
     return res.status(400).json({ message: 'Enrollment failed', error: error.message });
   }
 };
-
 
 export const createCourseTemplate = async (req, res) => {
   try {

@@ -183,9 +183,11 @@ export const paystackWebhook = async (req, res) => {
     }
 
     const event = req.body;
+    console.log("the event from paystact", event);
+    
     const transactionId = event.data.reference;
 
-    const payment = await Payment.findOne({ transactionId });
+    const payment = await Payment.findOne({ transactionId }).populate('userId');
     if (!payment) {
       return res.status(404).json({ message: 'Payment not found' });
     }
@@ -200,42 +202,18 @@ export const paystackWebhook = async (req, res) => {
         return res.status(200).json({ message: 'Webhook processed, but class data missing' });
       }
 
-      const userData = {
-        email: payment.meta.email,
-        name: payment.meta.name,
-        phone: payment.meta.phone,
-      };
+      let user = payment.userId ? await User.findById(payment.userId) : await User.findOne({ email: payment.meta.email });
 
-      let user = payment.userId ? await User.findById(payment.userId) : await User.findOne({ email: userData.email });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found for this payment' });
+      }
 
-      if (user) {
-        if (!user.courses.includes(classGroup._id)) {
-          user.courses.push(classGroup._id);
-          user.paymentStatus = 'success';
-          user.courseStatus = 'enrolled';
-          user.paymentDetails.push(payment._id);
-          await user.save();
-        }
-      } else {
-        const tempPassword = Math.random().toString(36).slice(-8);
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
-
-        user = new User({
-          name: userData.name,
-          email: userData.email,
-          phone: userData.phone,
-          options: 'paid_course',
-          password: hashedPassword,
-          role: 'student',
-          courseStatus: 'enrolled',
-          paymentStatus: 'success',
-          courses: [classGroup._id],
-          paymentDetails: [payment._id],
-          referralCode: nanoid(10),
-        });
+      if (!user.courses.includes(classGroup._id)) {
+        user.courses.push(classGroup._id);
+        user.paymentStatus = 'success';
+        user.courseStatus = 'enrolled';
+        user.paymentDetails.push(payment._id);
         await user.save();
-
-        await sendWelcomeWithTempPassword(user.email, user.name, classGroup.className, tempPassword);
       }
 
       if (!classGroup.enrolledUsers.includes(user._id)) {
@@ -265,7 +243,6 @@ export const paystackWebhook = async (req, res) => {
         await sendTermiiSMS(user.phone, `Your paid course starts tomorrow at ${classGroup.startDate.toLocaleString()} WAT!`);
       }
 
-      // Expose payment status via a separate endpoint for frontend polling
       return res.status(200).json({ message: 'Payment processed successfully', transactionId });
     }
 
@@ -279,6 +256,8 @@ export const paystackWebhook = async (req, res) => {
     return res.status(500).json({ message: 'Webhook processing failed', error: error.message });
   }
 };
+
+
 
 export const paymentCallback = async (req, res) => {
   try {
