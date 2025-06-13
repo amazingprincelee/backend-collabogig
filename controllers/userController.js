@@ -110,7 +110,7 @@ export const updateProfile = async (req, res) => {
 // Change Password
 export const changePassword = async (req, res) => {
   try {
-    const userId = req.user.id; // From JWT
+    const userId = req.user.id; 
     const { currentPassword, newPassword } = req.body;
 
     const user = await User.findById(userId);

@@ -31,7 +31,7 @@ connect()
 // Routes
 app.use('/api/services',  serviceRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/users',  userRoutes);
+app.use('/api/user',  userRoutes);
 app.use('/api/contact-form', contactRoute);
 app.use('/api/course',  courseRoute);
 app.use('/api/notification',  notificationRoute);

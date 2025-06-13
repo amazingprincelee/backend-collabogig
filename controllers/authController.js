@@ -14,6 +14,10 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 // Login User
 export const login = async (req, res) => {
+   
+  console.log("I got hit");
+  
+
   try {
     const { email, password } = req.body;
 
@@ -27,7 +31,7 @@ export const login = async (req, res) => {
     const token = jwt.sign({ 
       id: user._id,
       email: user.email,
-      role: user.role  // Make sure this is included
+      role: user.role  
     }, JWT_SECRET, { expiresIn: '1h' });
     res.json({ token });
   } catch (error) {

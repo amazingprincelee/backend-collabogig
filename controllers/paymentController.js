@@ -30,6 +30,8 @@ export const createPayment = async (req, res) => {
       provider = 'paystack',
     } = req.body;
 
+  
+
     const userId = req.user ? req.user.id : null;
 
     if (!userName || !email || !phone || !serviceType || !serviceId) {

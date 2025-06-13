@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/components/ReduxProvider.js", "src/components/auth/login.jsx", "src/components/dashboard/Dashboard.jsx", "src/components/LandingPage.jsx", "src/redux/features/courseSlice.js", "src/app/layout.jsx", "src/app/login/page.jsx", "src/app/payment/verify/page.jsx", "src/app/register/page.jsx", "src/app/upgrade-course/page.jsx", "src/app/page.jsx", "src/components/auth/register.jsx", "src/components/dashboard/AvailableCourses.jsx", "src/components/dashboard/CourseStatus.jsx", "src/components/dashboard/Header.jsx", "src/components/dashboard/index.jsx", "src/components/dashboard/Notification.jsx", "src/components/dashboard/PaymentDetails.jsx", "src/components/dashboard/Profile.jsx", "src/components/dashboard/Referral.jsx", "src/components/dashboard/UpgradeCourse.jsx", "src/redux/features/authSlice.js", "src/redux/features/paymentSlice.js", "src/redux/store.js", "src/redux/provider.jsx"],
+  "exclude": ["node_modules"]
+}
