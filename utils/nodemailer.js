@@ -55,6 +55,8 @@ Temporary Password: ${tempPassword}
 
 Please visit https://codefast.collabogig.com to log in and change your password immediately after your first login for security purposes.
 
+You can join our whatsapp group for support and discussion: https://chat.whatsapp.com/KXDvG1OCChC3b33WkTTD0J
+
 We are excited to have you join us on this learning journey. Should you need assistance, feel free to reply to this email.
 
 Best regards,  
