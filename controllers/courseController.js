@@ -255,3 +255,15 @@ export const updateClassGroup = async (req, res) => {
 };
 
 
+export const getClassGroupById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const classGroup = await ClassGroup.findById(id).populate("courseTemplate", "title description fee");
+    if (!classGroup) {
+      return res.status(404).json({ message: "Class group not found" });
+    }
+    res.status(200).json(classGroup);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch class group", error: error.message });
+  }
+};

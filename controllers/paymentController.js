@@ -213,7 +213,7 @@ export const paystackWebhook = async (req, res) => {
       if (!user.courses.includes(classGroup._id)) {
         user.courses.push(classGroup._id);
         user.paymentStatus = 'success';
-        user.courseStatus = 'enrolled';
+        user.courseStatus = 'paid';
         user.paymentDetails.push(payment._id);
         await user.save();
       }

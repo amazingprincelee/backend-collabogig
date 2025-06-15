@@ -1,5 +1,5 @@
 import express from 'express';
-import { createCourseTemplate, getAllClassGroups, courseEnrollment, createClassGroup, updateClassGroup, updateCourseTemplate } from '../controllers/courseController.js';
+import { createCourseTemplate, getAllClassGroups, courseEnrollment, createClassGroup, updateClassGroup, updateCourseTemplate, getClassGroupById } from '../controllers/courseController.js';
 import { authMiddleware, isAdmin } from '../middlewares/authMiddleware.js';
 import validate from '../middlewares/validation.js';
 import { createClassGroupSchema } from '../validators/validateSchema.js'
@@ -13,6 +13,7 @@ router.post('/class-group', authMiddleware, isAdmin, validate( createClassGroupS
 router.post('/enroll',  courseEnrollment);
 router.put('/update-template/:id', authMiddleware, isAdmin, updateCourseTemplate);
 router.put('/update-class-group/:id', authMiddleware, isAdmin, updateClassGroup);
+router.get("/:id", authMiddleware, getClassGroupById);
 
 export default router;
 
