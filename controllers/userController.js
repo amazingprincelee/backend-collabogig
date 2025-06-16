@@ -110,9 +110,9 @@ export const updateProfile = async (req, res) => {
 // Change Password
 export const changePassword = async (req, res) => {
   try {
-    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const { currentPassword, newPassword } = req.body;
     const userId = req.user.id;
- console.log(confirmPassword);
+ 
  
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ 
