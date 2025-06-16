@@ -6,8 +6,7 @@ import { verifyFlutterwavePayment, initializePayment } from '../utils/flutterwav
 import { verifyPaystackPayment, initializePaystackPayment } from '../utils/paystack.js';
 import { sendNotificationEmail, sendWelcomeWithTempPassword } from '../utils/nodemailer.js';
 import { sendTermiiSMS } from '../utils/termii.js';
-import { nanoid } from 'nanoid';
-import bcrypt from 'bcrypt';
+
 import crypto from 'crypto';
 
 const verifyPaystackWebhook = (req) => {
@@ -181,11 +180,15 @@ export const paystackWebhook = async (req, res) => {
   try {
     // Verify webhook signature
     if (!verifyPaystackWebhook(req)) {
+      console.log("Webhook signature verification failed", {
+        headers: req.headers,
+        signature: req.headers['x-paystack-signature']
+      });
       return res.status(400).json({ message: 'Invalid webhook signature' });
     }
 
     const event = req.body;
-    console.log("the event from paystact", event);
+    console.log("Paystack event:", event);
     
     const transactionId = event.data.reference;
 
@@ -206,7 +209,17 @@ export const paystackWebhook = async (req, res) => {
 
       let user = payment.userId ? await User.findById(payment.userId) : await User.findOne({ email: payment.meta.email });
 
+      if (!user && payment.meta.email) {
+        console.log("User not found, attempting to find by email:", payment.meta.email);
+        user = await User.findOne({ email: payment.meta.email });
+      }
+
       if (!user) {
+        console.error("User not found for payment:", {
+          paymentId: payment._id,
+          userId: payment.userId,
+          email: payment.meta.email
+        });
         return res.status(404).json({ message: 'User not found for this payment' });
       }
 
@@ -254,6 +267,7 @@ export const paystackWebhook = async (req, res) => {
       message: error.message,
       stack: error.stack,
       body: req.body,
+      headers: req.headers
     });
     return res.status(500).json({ message: 'Webhook processing failed', error: error.message });
   }
