@@ -110,25 +110,53 @@ export const updateProfile = async (req, res) => {
 // Change Password
 export const changePassword = async (req, res) => {
   try {
-    const userId = req.user.id; 
-    const { currentPassword, newPassword } = req.body;
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const userId = req.user.id;
+ console.log(confirmPassword);
+ 
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Current password and new password are required' 
+      });
+    }
 
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'User not found' 
+      });
+    }
 
     // Verify current password
     const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch) return res.status(401).json({ message: 'Current password is incorrect' });
+    if (!isMatch) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Current password is incorrect' 
+      });
+    }
 
     // Hash new password
-    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
 
     // Update password
-    user.password = hashedNewPassword;
+    user.password = hashedPassword;
     await user.save();
 
-    res.status(200).json({ message: 'Password changed successfully' });
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to change password', error: err.message });
+    return res.status(200).json({
+      success: true,
+      message: 'Password updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Change password error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to change password',
+      error: error.message
+    });
   }
 };
