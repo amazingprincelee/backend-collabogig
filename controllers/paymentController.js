@@ -177,18 +177,16 @@ export const verifyPayment = async (req, res) => {
 };
 
 export const paystackWebhook = async (req, res) => {
+  console.log("payment got to this point 1");
+  
   try {
     // Verify webhook signature
     if (!verifyPaystackWebhook(req)) {
-      console.log("Webhook signature verification failed", {
-        headers: req.headers,
-        signature: req.headers['x-paystack-signature']
-      });
       return res.status(400).json({ message: 'Invalid webhook signature' });
     }
 
     const event = req.body;
-    console.log("Paystack event:", event);
+    console.log("the event from paystact", event);
     
     const transactionId = event.data.reference;
 
@@ -197,8 +195,9 @@ export const paystackWebhook = async (req, res) => {
       return res.status(404).json({ message: 'Payment not found' });
     }
 
-    if (event.event === 'charge.success' && payment.status !== 'successful') {
-      payment.status = 'successful';
+    if (event.event === 'charge.success' && payment.status !== 'success') {
+      // Changed 'successful' to 'success' to match the enum
+      payment.status = 'success';
       await payment.save();
 
       const classGroup = await ClassGroup.findById(payment.serviceId).populate('courseTemplate');
@@ -261,7 +260,7 @@ export const paystackWebhook = async (req, res) => {
       return res.status(200).json({ message: 'Payment processed successfully', transactionId });
     }
 
-    return res.status(200).json({ message: 'Webhook received, no action taken' });
+    return res.status(200).json({ message: 'Webhook processed successfully' });
   } catch (error) {
     console.error('Webhook error:', {
       message: error.message,
