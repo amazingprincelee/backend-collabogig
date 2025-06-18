@@ -15,8 +15,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // Login User
 export const login = async (req, res) => {
    
-  console.log("I got hit");
-  
+
 
   try {
     const { email, password } = req.body;
@@ -41,8 +40,15 @@ export const login = async (req, res) => {
 
 
 export const register = async (req, res) => {
+    
+  console.log("i got hit");
+  
+
   try {
     const { name, email, phone, password, role, referralCode } = req.body;
+
+    console.log(name, email, phone, password, role, referralCode);
+    
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });

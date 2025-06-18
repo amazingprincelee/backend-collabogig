@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import CourseTemplate from '../models/courseTemplate.js';
 import ClassGroup from '../models/classGroup.js';
 import User from '../models/users.js';
@@ -13,9 +14,9 @@ const JWT_SECRET = process.env.JWT_SECRET
 
 export const courseEnrollment = async (req, res) => {
   try {
-    const { name, email, phone, options, classGroupId } = req.body;
+    const { name, email, phone, options, classGroupId, referralCode } = req.body;
 
-    console.log(options);
+ 
 
     if (!name || !email || !phone || !options || !classGroupId) {
       return res.status(400).json({ message: 'Missing required fields' });
@@ -46,7 +47,6 @@ export const courseEnrollment = async (req, res) => {
 
       // Generate JWT token for existing user
       const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
-      console.log('Existing user authenticated, options:', options); // Debug log
       return res.status(200).json({ message: 'User authenticated', token, user: { id: user._id, email, role: user.role }, options });
     }
 
@@ -68,7 +68,7 @@ export const courseEnrollment = async (req, res) => {
     });
 
     await user.save();
-    console.log('New user created, options:', options); // Debug log
+    
 
     // Send welcome email with temp password for both free and paid courses
     await sendWelcomeWithTempPassword(email, name, classGroup.className, tempPassword);
@@ -76,6 +76,41 @@ export const courseEnrollment = async (req, res) => {
     if (options === 'free_course') {
       classGroup.enrolledUsers.push(user._id);
       await classGroup.save();
+    }
+
+    // Handle referral if referralCode is provided
+    if (referralCode) {
+      try {
+        const referrer = await User.findOne({ referralCode });
+        if (referrer) {
+          // Create a new referral record
+          const Referral = mongoose.model('Referral');
+          const referral = new Referral({
+            referrerId: referrer._id,
+            referredEmail: email,
+            referredUserId: user._id,
+            referralCode: referralCode,
+            type: 'student',
+            commissionPercentage: 10,
+            status: 'Free Class',
+          });
+          
+          await referral.save();
+          
+          // Update referrer's referrals and downlines
+          if (!referrer.referrals) referrer.referrals = [];
+          if (!referrer.downlines) referrer.downlines = [];
+          
+          referrer.referrals.push(referral._id);
+          referrer.downlines.push(user._id);
+          await referrer.save();
+          
+          
+        }
+      } catch (referralError) {
+        console.error('Error processing referral:', referralError);
+        // Continue with enrollment even if referral processing fails
+      }
     }
 
     // Generate JWT token for new user

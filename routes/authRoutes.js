@@ -6,6 +6,6 @@ import { registerSchema, loginSchema } from '../validators/validateSchema.js'
 const router = express.Router();
 
 router.post('/login',  validate(loginSchema), login);
-router.post('/register', validate(registerSchema), register);
+router.post('/register', register);
 
 export default router;

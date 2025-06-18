@@ -1,5 +1,6 @@
 import User from '../models/users.js'; 
 import { upload } from '../utils/cloudinary.js';
+import bcrypt from 'bcrypt';
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -110,8 +111,17 @@ export const updateProfile = async (req, res) => {
 // Change Password
 export const changePassword = async (req, res) => {
   try {
+     console.log('i got hit');
+     
+
     const { currentPassword, newPassword } = req.body;
     const userId = req.user.id;
+
+    console.log('the user id', userId);
+
+    console.log(currentPassword, newPassword);
+    
+    
  
  
     if (!currentPassword || !newPassword) {
