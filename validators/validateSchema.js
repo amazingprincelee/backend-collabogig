@@ -87,6 +87,29 @@ const createClassGroupSchema = Yup.object().shape({
  
 
 
+// Prep Link Schema
+const prepLinkSchema = Yup.object().shape({
+  title: Yup.string()
+    .required('Title is required')
+    .min(3, 'Title must be at least 3 characters'),
+
+  url: Yup.string()
+    .required('URL is required')
+    .matches(
+      /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/,
+      'Must be a valid YouTube URL'
+    ),
+
+  description: Yup.string()
+    .notRequired()
+    .max(500, 'Description cannot exceed 500 characters'),
+
+  weekNumber: Yup.number()
+    .required('Week number is required')
+    .integer('Week number must be an integer')
+    .positive('Week number must be positive')
+});
+
 export {
   registerSchema,
   loginSchema,
@@ -96,4 +119,5 @@ export {
   appDevProjectSchema,
   enrollmentSchema,
   createClassGroupSchema,
+  prepLinkSchema,
 };

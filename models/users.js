@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   profilePhoto: { type: String, default: "" },
   courseStatus: { type: String, enum: ["free", "paid", "not paid", "pending"], default: "free" },
+  canReceivePrepLinks: { type: Boolean, default: false }, // Controls whether free users can receive prep materials
   walletBalance: { type: Number, default: 0 },
   courses: [{ type: mongoose.Schema.Types.ObjectId, ref: "ClassGroup" }],
   referralCode: { type: String, unique: true },
