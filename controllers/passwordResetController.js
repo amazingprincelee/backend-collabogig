@@ -91,6 +91,9 @@ export const validateResetToken = async (req, res) => {
 
 // Reset password
 export const resetPassword = async (req, res) => {
+  console.log("I got hit");
+  
+
   try {
     const { token, password } = req.body;
     
