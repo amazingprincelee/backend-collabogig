@@ -40,17 +40,78 @@ export const sendVerificationEmail = async (to, code) => {
     from: 'no-reply@collabogig.com',
     to,
     subject: 'Collabogig Verification Code',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 20px; padding: 15px; background-color: #3D1156; border-radius: 8px 8px 0 0;">
+          <img src="https://res.cloudinary.com/dc5b6xpyf/image/upload/v1751257838/latest_logo_with_name2_e7ss1o.png" alt="Collabogig Logo" style="max-width: 200px;">
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
+          <h2 style="color: #3D1156; margin: 0;">Verification Code</h2>
+        </div>
+        
+        <p style="color: #333; font-size: 16px;">Dear User,</p>
+        
+        <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #3D1156; margin: 20px 0; border-radius: 4px; text-align: center;">
+          <p style="margin-top: 0; font-weight: bold; color: #3D1156;">Your verification code is:</p>
+          <p style="font-size: 24px; font-weight: bold; margin: 10px 0; letter-spacing: 2px; color: #3D1156;">${code}</p>
+        </div>
+        
+        <p style="color: #333; font-size: 16px;">Thank you for choosing Collabogig Innovations.</p>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+          <p style="color: #555; margin-bottom: 5px;">Best regards,</p>
+          <p style="color: #555; margin-bottom: 5px;">Collabogig Innovations Team</p>
+        </div>
+      </div>
+    `,
     text: `Dear User,\n\nYour verification code is: ${code}\n\nThank you for choosing Collabogig Innovations.\n\nBest regards,\nCollabogig Innovations Team`,
   };
 
   return transporter.sendMail(mailOptions);
 };
 
+// Function to send welcome email with temporary password
 export const sendWelcomeWithTempPassword = async (to, name, courseTitle, tempPassword) => {
   const mailOptions = {
     from: 'code-fast@collabogig.com',
     to,
     subject: 'Welcome to Code-Fast with Prince Lee - Your Course Access',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 20px; padding: 15px; background-color: #3D1156; border-radius: 8px 8px 0 0;">
+          <img src="https://res.cloudinary.com/dc5b6xpyf/image/upload/v1751257838/latest_logo_with_name2_e7ss1o.png" alt="Collabogig Logo" style="max-width: 200px;">
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
+          <h2 style="color: #3D1156; margin: 0;">Welcome to Code-Fast with Prince Lee!</h2>
+        </div>
+        
+        <p style="color: #333; font-size: 16px;">Dear ${name},</p>
+        
+        <p style="color: #333; font-size: 16px;">Thank you for enrolling in Code-Fast with Prince Lee, Powered by collabogig.com!</p>
+        
+        <p style="color: #333; font-size: 16px;">You are now registered for the "${courseTitle}" course.</p>
+        
+        <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #3D1156; margin: 20px 0; border-radius: 4px; text-align: center;">
+          <p style="margin-top: 0; font-weight: bold; color: #3D1156;">Your temporary password is:</p>
+          <p style="font-size: 18px; font-weight: bold; margin: 10px 0; letter-spacing: 1px; color: #3D1156; background-color: #ffffff; padding: 10px; border-radius: 4px;">${tempPassword}</p>
+        </div>
+        
+        <p style="color: #333; font-size: 16px;">Please visit <a href="https://codefast.collabogig.com" style="color: #3D1156; text-decoration: underline;">codefast.collabogig.com</a> to log in and change your password immediately after your first login for security purposes.</p>
+        
+        <p style="color: #333; font-size: 16px;">You can join our WhatsApp group for support and discussion: <a href="https://chat.whatsapp.com/KXDvG1OCChC3b33WkTTD0J" style="color: #3D1156; text-decoration: underline;">Click here to join</a></p>
+        
+        <p style="color: #333; font-size: 16px;">We are excited to have you join us on this learning journey. Should you need assistance, feel free to reply to this email.</p>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+          <p style="color: #555; margin-bottom: 5px;">Best regards,</p>
+          <p style="color: #555; margin-bottom: 5px; font-weight: bold;">Prince Lee</p>
+          <p style="color: #555; margin-bottom: 5px;">Lead Instructor, Code-Fast</p>
+          <p style="color: #555; margin-bottom: 5px;">codefast.collabogig.com</p>
+        </div>
+      </div>
+    `,
     text: `Dear ${name},
 
 Thank you for enrolling in Code-Fast with Prince Lee, Powered by collabogig.com!
@@ -75,13 +136,36 @@ codefast.collabogig.com`,
 };
 
 // Function to send notification email
-export const sendNotificationEmail = async (to, message) => {
+export const sendNotificationEmail = async (to, subject, message) => {
   const mailOptions = {
     from: 'no-reply@collabogig.com',
     to,
-    subject: 'Collabogig Notification',
-    text: `Dear User,\n\n${message}\n\nBest regards,\nCollabogig Innovations Team`,
+    subject,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 20px; padding: 15px; background-color: #3D1156; border-radius: 8px 8px 0 0;">
+          <img src="https://res.cloudinary.com/dc5b6xpyf/image/upload/v1751257838/latest_logo_with_name2_e7ss1o.png" alt="Collabogig Logo" style="max-width: 200px;">
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
+          <h2 style="color: #3D1156; margin: 0;">${subject}</h2>
+        </div>
+        
+        <p style="color: #333; font-size: 16px;">Dear User,</p>
+        
+        <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #3D1156; margin: 20px 0; border-radius: 4px;">
+          <p style="margin: 0; color: #333;">${message}</p>
+        </div>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+          <p style="color: #555; margin-bottom: 5px;">Best regards,</p>
+          <p style="color: #555; margin-bottom: 5px;">Collabogig Innovations Team</p>
+        </div>
+      </div>
+    `,
+    text: message,
   };
+
   return transporter.sendMail(mailOptions);
 };
 
@@ -91,6 +175,31 @@ export const sendTemporaryPassword = async (to, tempPassword) => {
     from: 'no-reply@collabogig.com',
     to,
     subject: 'Collabogig Temporary Password Reset',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 20px; padding: 15px; background-color: #3D1156; border-radius: 8px 8px 0 0;">
+          <img src="https://res.cloudinary.com/dc5b6xpyf/image/upload/v1751257838/latest_logo_with_name2_e7ss1o.png" alt="Collabogig Logo" style="max-width: 200px;">
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
+          <h2 style="color: #3D1156; margin: 0;">Temporary Password</h2>
+        </div>
+        
+        <p style="color: #333; font-size: 16px;">Dear User,</p>
+        
+        <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #3D1156; margin: 20px 0; border-radius: 4px; text-align: center;">
+          <p style="margin-top: 0; font-weight: bold; color: #3D1156;">Your temporary password is:</p>
+          <p style="font-size: 18px; font-weight: bold; margin: 10px 0; letter-spacing: 1px; color: #3D1156; background-color: #ffffff; padding: 10px; border-radius: 4px;">${tempPassword}</p>
+        </div>
+        
+        <p style="color: #333; font-size: 16px;">Please log in using this password and change it immediately for security purposes.</p>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+          <p style="color: #555; margin-bottom: 5px;">Best regards,</p>
+          <p style="color: #555; margin-bottom: 5px;">Collabogig Innovations Team</p>
+        </div>
+      </div>
+    `,
     text: `Dear User,\n\nYour temporary password is: ${tempPassword}\n\nPlease log in using this password and change it immediately.\n\nBest regards,\nCollabogig Innovations Team`,
   };
 
@@ -104,30 +213,39 @@ export const sendCourseStartReminder = async (user, classGroup, courseTemplate) 
     to: user.email,
     subject: `Reminder: Your ${courseTemplate.title} Course Starts Today!`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <h2 style="color: #4a6ee0;">Your Course Starts Today!</h2>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 20px; padding: 15px; background-color: #3D1156; border-radius: 8px 8px 0 0;">
+          <img src="https://res.cloudinary.com/dc5b6xpyf/image/upload/v1751257838/latest_logo_with_name2_e7ss1o.png" alt="Collabogig Logo" style="max-width: 200px;">
         </div>
         
-        <p>Dear ${user.name},</p>
+        <div style="text-align: center; margin-bottom: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
+          <h2 style="color: #3D1156; margin: 0;">Your Course Starts Today!</h2>
+        </div>
         
-        <p>We're excited to remind you that your <strong>${courseTemplate.title}</strong> course (<em>${classGroup.className}</em>) starts today!</p>
+        <p style="color: #333; font-size: 16px;">Dear ${user.name},</p>
         
-        <p><strong>Course Details:</strong></p>
-        <ul>
-          <li>Start Time: ${formatDate(classGroup.startDate)}</li>
-          <li>Location: ${classGroup.location || 'Online'}</li>
-          <li>Learning Mode: ${classGroup.learningMode}</li>
-        </ul>
+        <p style="color: #333; font-size: 16px;">We're excited to remind you that your <strong>${courseTemplate.title}</strong> course (<em>${classGroup.className}</em>) starts today!</p>
         
-        <p>Please ensure you're prepared and ready to begin your learning journey. Don't forget to log in to your dashboard at <a href="https://codefast.collabogig.com">codefast.collabogig.com</a> to access course materials.</p>
+        <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #3D1156; margin: 20px 0; border-radius: 4px;">
+          <p style="margin-top: 0; font-weight: bold; color: #3D1156;">Course Details:</p>
+          <ul style="padding-left: 20px;">
+            <li style="margin-bottom: 8px;">Start Time: ${formatDate(classGroup.startDate)}</li>
+            <li style="margin-bottom: 8px;">Location: ${classGroup.location || 'Online'}</li>
+            <li style="margin-bottom: 8px;">Learning Mode: ${classGroup.learningMode}</li>
+            <li style="margin-bottom: 8px;">Meeting Link: <a href="https://meet.google.com/xob-xmna-zhy" style="color: #3D1156; text-decoration: underline;">https://meet.google.com/xob-xmna-zhy</a></li>
+          </ul>
+        </div>
         
-        <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+        <p style="color: #333; font-size: 16px;">Please ensure you're prepared and ready to begin your learning journey. Don't forget to log in to your dashboard at <a href="https://codefast.collabogig.com" style="color: #3D1156; text-decoration: underline;">codefast.collabogig.com</a> to access course materials.</p>
         
-        <p>Best regards,<br>
-        Prince Lee<br>
-        Lead Instructor, Code-Fast<br>
-        Collabogig Innovations</p>
+        <p style="color: #333; font-size: 16px;">If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+          <p style="color: #555; margin-bottom: 5px;">Best regards,</p>
+          <p style="color: #555; margin-bottom: 5px; font-weight: bold;">Prince Lee</p>
+          <p style="color: #555; margin-bottom: 5px;">Lead Instructor, Code-Fast</p>
+          <p style="color: #555; margin-bottom: 5px;">Collabogig Innovations</p>
+        </div>
       </div>
     `,
   };
@@ -147,32 +265,47 @@ export const sendWeeklyProgressEmail = async (user, classGroup, courseTemplate, 
     to: user.email,
     subject: `Week ${weekNumber} Progress - ${courseTemplate.title}`,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <h2 style="color: #4a6ee0;">Weekly Progress Update</h2>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 20px; padding: 15px; background-color: #3D1156; border-radius: 8px 8px 0 0;">
+          <img src="https://res.cloudinary.com/dc5b6xpyf/image/upload/v1751257838/latest_logo_with_name2_e7ss1o.png" alt="Collabogig Logo" style="max-width: 200px;">
         </div>
         
-        <p>Dear ${user.name},</p>
+        <div style="text-align: center; margin-bottom: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
+          <h2 style="color: #3D1156; margin: 0;">Weekly Progress Update</h2>
+        </div>
         
-        <p>Congratulations on completing Week ${weekNumber} of your <strong>${courseTemplate.title}</strong> course!</p>
+        <p style="color: #333; font-size: 16px;">Dear ${user.name},</p>
         
-        <p>You've made excellent progress this week, and we're excited to see your continued growth and development.</p>
+        <p style="color: #333; font-size: 16px;">Congratulations on completing Week ${weekNumber} of your <strong>${courseTemplate.title}</strong> course!</p>
+        
+        <p style="color: #333; font-size: 16px;">You've made excellent progress this week, and we're excited to see your continued growth and development.</p>
         
         ${user.courseStatus !== 'free' || user.canReceivePrepLinks ? `
-        <p><strong>Preparation Materials for Next Week:</strong></p>
-        <ul>
-          ${prepLinks.map(link => `<li><a href="${link.url}">${link.title}</a> - ${link.description}</li>`).join('')}
-        </ul>
-        
-        <p>Please review these materials before your next class to get the most out of your learning experience.</p>
+        <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #3D1156; margin: 20px 0; border-radius: 4px;">
+          <p style="margin-top: 0; font-weight: bold; color: #3D1156;">Preparation Materials for Next Week:</p>
+          <ul style="padding-left: 20px;">
+            ${prepLinks.map(link => `<li style="margin-bottom: 8px;"><a href="${link.url}" style="color: #3D1156; text-decoration: underline;">${link.title}</a> - ${link.description}</li>`).join('')}
+          </ul>
+          
+          <p style="color: #333; font-size: 16px;">Please review these materials before your next class to get the most out of your learning experience.</p>
+        </div>
         ` : ''}
         
-        <p>Remember to check your dashboard at <a href="https://codefast.collabogig.com">codefast.collabogig.com</a> for additional resources and updates.</p>
+        <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #3D1156; margin: 20px 0; border-radius: 4px;">
+          <p style="margin-top: 0; font-weight: bold; color: #3D1156;">Next Class:</p>
+          <ul style="padding-left: 20px;">
+            <li style="margin-bottom: 8px;">Meeting Link: <a href="https://meet.google.com/xob-xmna-zhy" style="color: #3D1156; text-decoration: underline;">https://meet.google.com/xob-xmna-zhy</a></li>
+          </ul>
+        </div>
         
-        <p>Best regards,<br>
-        Prince Lee<br>
-        Lead Instructor, Code-Fast<br>
-        Collabogig Innovations</p>
+        <p style="color: #333; font-size: 16px;">Remember to check your dashboard at <a href="https://codefast.collabogig.com" style="color: #3D1156; text-decoration: underline;">codefast.collabogig.com</a> for additional resources and updates.</p>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+          <p style="color: #555; margin-bottom: 5px;">Best regards,</p>
+          <p style="color: #555; margin-bottom: 5px; font-weight: bold;">Prince Lee</p>
+          <p style="color: #555; margin-bottom: 5px;">Lead Instructor, Code-Fast</p>
+          <p style="color: #555; margin-bottom: 5px;">Collabogig Innovations</p>
+        </div>
       </div>
     `,
   };
@@ -196,31 +329,40 @@ export const sendUpgradePromotionEmail = async (user, courseTemplate, weekIndex 
     to: user.email,
     subject: template.subject,
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <h2 style="color: #4a6ee0;">${template.title}</h2>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 20px; padding: 15px; background-color: #3D1156; border-radius: 8px 8px 0 0;">
+          <img src="https://res.cloudinary.com/dc5b6xpyf/image/upload/v1751257838/latest_logo_with_name2_e7ss1o.png" alt="Collabogig Logo" style="max-width: 200px;">
         </div>
         
-        <p>Dear ${user.name},</p>
+        <div style="text-align: center; margin-bottom: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
+          <h2 style="color: #3D1156; margin: 0;">${template.title}</h2>
+        </div>
         
-        <p>We hope you're enjoying your free introduction to <strong>${courseTemplate.title}</strong>!</p>
+        <p style="color: #333; font-size: 16px;">Dear ${user.name},</p>
         
-        <p>${template.intro}</p>
+        <p style="color: #333; font-size: 16px;">We hope you're enjoying your free introduction to <strong>${courseTemplate.title}</strong>!</p>
         
-        <ul style="background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
-          ${template.benefits.map(benefit => `<li>${benefit}</li>`).join('')}
-        </ul>
+        <p style="color: #333; font-size: 16px;">${template.intro}</p>
+        
+        <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #3D1156; margin: 20px 0; border-radius: 4px;">
+          <p style="margin-top: 0; font-weight: bold; color: #3D1156;">Premium Benefits:</p>
+          <ul style="padding-left: 20px;">
+            ${template.benefits.map(benefit => `<li style="margin-bottom: 8px;">${benefit}</li>`).join('')}
+          </ul>
+        </div>
         
         <div style="text-align: center; margin: 25px 0;">
-          <a href="https://codefast.collabogig.com/upgrade" style="background-color: #4a6ee0; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; font-weight: bold;">${template.cta}</a>
+          <a href="https://codefast.collabogig.com/upgrade" style="background-color: #3D1156; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">${template.cta}</a>
         </div>
         
-        <p>${template.closing}</p>
+        <p style="color: #333; font-size: 16px;">${template.closing}</p>
         
-        <p>Best regards,<br>
-        Prince Lee<br>
-        Lead Instructor, Code-Fast<br>
-        Collabogig Innovations</p>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+          <p style="color: #555; margin-bottom: 5px;">Best regards,</p>
+          <p style="color: #555; margin-bottom: 5px; font-weight: bold;">Prince Lee</p>
+          <p style="color: #555; margin-bottom: 5px;">Lead Instructor, Code-Fast</p>
+          <p style="color: #555; margin-bottom: 5px;">Collabogig Innovations</p>
+        </div>
       </div>
     `,
   };
@@ -235,21 +377,36 @@ export const sendPasswordResetEmail = async (to, name, resetLink) => {
     to,
     subject: 'Password Reset Request',
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <img src="https://collabogig.com/logo.png" alt="Collabogig Logo" style="max-width: 150px;">
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 20px; padding: 15px; background-color: #3D1156; border-radius: 8px 8px 0 0;">
+          <img src="https://res.cloudinary.com/dc5b6xpyf/image/upload/v1751257838/latest_logo_with_name2_e7ss1o.png" alt="Collabogig Logo" style="max-width: 200px;">
         </div>
-        <h2 style="color: #3D1156; text-align: center;">Password Reset Request</h2>
-        <p>Hello ${name},</p>
-        <p>We received a request to reset your password. If you didn't make this request, you can ignore this email.</p>
-        <p>To reset your password, click the button below:</p>
+        
+        <div style="text-align: center; margin-bottom: 20px; background-color: #f9f9f9; padding: 15px; border-radius: 5px;">
+          <h2 style="color: #3D1156; margin: 0;">Password Reset Request</h2>
+        </div>
+        
+        <p style="color: #333; font-size: 16px;">Hello ${name},</p>
+        
+        <p style="color: #333; font-size: 16px;">We received a request to reset your password. If you didn't make this request, you can ignore this email.</p>
+        
+        <p style="color: #333; font-size: 16px;">To reset your password, click the button below:</p>
+        
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${resetLink}" style="background-color: #3D1156; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">Reset Password</a>
+          <a href="${resetLink}" style="background-color: #3D1156; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">Reset Password</a>
         </div>
-        <p>Or copy and paste this link into your browser:</p>
-        <p style="word-break: break-all; background-color: #f5f5f5; padding: 10px; border-radius: 4px;">${resetLink}</p>
-        <p>This link will expire in 1 hour for security reasons.</p>
-        <p>Best regards,<br>Collabogig Innovations Team</p>
+        
+        <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #3D1156; margin: 20px 0; border-radius: 4px;">
+          <p style="margin-top: 0; font-weight: bold; color: #3D1156;">Or copy and paste this link into your browser:</p>
+          <p style="word-break: break-all; background-color: #ffffff; padding: 10px; border-radius: 4px; margin-bottom: 0;">${resetLink}</p>
+        </div>
+        
+        <p style="color: #333; font-size: 16px;">This link will expire in 1 hour for security reasons.</p>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+          <p style="color: #555; margin-bottom: 5px;">Best regards,</p>
+          <p style="color: #555; margin-bottom: 5px;">Collabogig Innovations Team</p>
+        </div>
       </div>
     `,
     text: `Hello ${name},\n\nWe received a request to reset your password. If you didn't make this request, you can ignore this email.\n\nTo reset your password, click the link below:\n\n${resetLink}\n\nThis link will expire in 1 hour for security reasons.\n\nBest regards,\nCollabogig Innovations Team`
