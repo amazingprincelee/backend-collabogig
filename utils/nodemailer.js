@@ -233,6 +233,7 @@ export const sendCourseStartReminder = async (user, classGroup, courseTemplate) 
             <li style="margin-bottom: 8px;">Location: ${classGroup.location || 'Online'}</li>
             <li style="margin-bottom: 8px;">Learning Mode: ${classGroup.learningMode}</li>
             <li style="margin-bottom: 8px;">Meeting Link: <a href="https://meet.google.com/xob-xmna-zhy" style="color: #3D1156; text-decoration: underline;">https://meet.google.com/xob-xmna-zhy</a></li>
+            <li style="margin-bottom: 8px;">Prep Youtube Videos: <a href="https://www.youtube.com/@FunStoryInpiration" style="color: #3D1156; text-decoration: underline;">https://www.youtube.com/@FunStoryInpiration</a></li>
           </ul>
         </div>
         
@@ -283,9 +284,11 @@ export const sendWeeklyProgressEmail = async (user, classGroup, courseTemplate, 
         ${user.courseStatus !== 'free' || user.canReceivePrepLinks ? `
         <div style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #3D1156; margin: 20px 0; border-radius: 4px;">
           <p style="margin-top: 0; font-weight: bold; color: #3D1156;">Preparation Materials for Next Week:</p>
+          
           <ul style="padding-left: 20px;">
-            ${prepLinks.map(link => `<li style="margin-bottom: 8px;"><a href="${link.url}" style="color: #3D1156; text-decoration: underline;">${link.title}</a> - ${link.description}</li>`).join('')}
+            <li style="margin-bottom: 8px;">Prep Youtube Videos: <a href="https://www.youtube.com/@amazingprincelee" style="color: #3D1156; text-decoration: underline;">https://www.youtube.com/@amazingprincelee</a></li>
           </ul>
+    
           
           <p style="color: #333; font-size: 16px;">Please review these materials before your next class to get the most out of your learning experience.</p>
         </div>
